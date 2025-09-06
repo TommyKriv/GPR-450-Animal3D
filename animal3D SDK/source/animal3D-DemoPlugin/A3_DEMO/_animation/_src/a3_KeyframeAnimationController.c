@@ -54,9 +54,59 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-1: IMPLEMENT ME
 //-----------------------------------------------------------------------------
+		a3f64 t = clipCtrl->keyframe->duration_sec; //Uncertain why not clipCtrl->keyframeTime_sec
+		a3f64 t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex].duration_sec;
+		a3f64 t0 = t1 - t;
+		//Attempted with 0-1 increments
+		/*clipCtrl->keyframeParam += 1 / dt; 
+		clipCtrl->clipParam += 1 / dt;
+		if (clipCtrl->keyframeParam >= 1)
+		{
+			clipCtrl->keyframeIndex++;
+			clipCtrl->clipPool++;
+		}*/
+		while (t < t1)
+		{
+			
+			//if (dt = 0) //1 Case Paused
+			//{
+			//	return;
+			//}
+			//if (dt > 0) //2 Case Forward
+			//{
+			//	t += dt;
+			//	clipCtrl->clipTime_sec += dt;
+			//}
+			//if (dt < 0) //3 Case Reverse
+			//{
+			//	t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex--].duration_sec;
+			//}
+		}
 
-
-
+		//if (t >= t1) //Checking for passing over keyframe duration
+		//{
+		//	if (t1 != clipCtrl->clipPool->keyframeCount) //4 Case Forward Skip
+		//	{
+		//		t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex++].duration_sec;
+		//		t = 0;
+		//	}
+		//	else //5 Case Forward Terminus
+		//	{
+		//		clipCtrl->clipIndex++;
+		//	}
+		//}
+		//if (t <= t0) //Checking for passing under keyframe duration
+		//{
+		//	if (t1 != 0)  //6 Case Reverse Skip
+		//	{
+		//		t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex--].duration_sec;
+		//	}
+		//	else //7 Case Reverse Terminus
+		//	{
+		//		clipCtrl->clipIndex--;
+		//	}
+		//}
+		
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-1
 //-----------------------------------------------------------------------------
