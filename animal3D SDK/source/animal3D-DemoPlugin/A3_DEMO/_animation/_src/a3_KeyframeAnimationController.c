@@ -54,58 +54,77 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-1: IMPLEMENT ME
 //-----------------------------------------------------------------------------
-		a3f64 t = clipCtrl->keyframe->duration_sec; //Uncertain why not clipCtrl->keyframeTime_sec
-		a3f64 t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex].duration_sec;
-		a3f64 t0 = t1 - t;
-		//Attempted with 0-1 increments
-		/*clipCtrl->keyframeParam += 1 / dt; 
-		clipCtrl->clipParam += 1 / dt;
-		if (clipCtrl->keyframeParam >= 1)
-		{
-			clipCtrl->keyframeIndex++;
-			clipCtrl->clipPool++;
-		}*/
-		while (t < t1)
+		a3f64 newKeyTimeSecs = dt + (clipCtrl->keyframeTime_sec); // This is the new time in seconds
+		a3f64 newClipTimeSecs = dt + (clipCtrl->clipTime_sec);
+		// Playback is paused, do nothing and skip over lol lmao
+		if (dt == 0)
 		{
 			
-			//if (dt = 0) //1 Case Paused
-			//{
-			//	return;
-			//}
-			//if (dt > 0) //2 Case Forward
-			//{
-			//	t += dt;
-			//	clipCtrl->clipTime_sec += dt;
-			//}
-			//if (dt < 0) //3 Case Reverse
-			//{
-			//	t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex--].duration_sec;
-			//}
+		}
+		// We are moving forward. Apply forward logic here
+		else if (dt > 0)
+		{
+			
+
+			// Loops until we have reached the desired new keyframe
+			while (newKeyTimeSecs >= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec)
+			{
+				// If forward terminus
+				if (newClipTimeSecs >= clipCtrl->clipTime_sec)
+				{
+					// Loop the clip
+					newClipTimeSecs -= clipCtrl->clipTime_sec;
+					newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					if (newClipTimeSecs != newKeyTimeSecs)
+					{
+						int help = 0; // If this breakpoint is ever triggered, god help us all
+					}
+					clipCtrl->keyframeIndex = 0;
+				}
+				else // If not, normal skip
+				{
+					newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					clipCtrl->keyframeIndex++;
+				}
+			}
+
+		}
+		// We are moving backwards, apply backwards logic
+		else if (dt < 0)
+		{
+			// Loops until we have reached the desired new keyframe
+			while (newKeyTimeSecs <= 0)
+			{
+				// If reverse terminus
+				if (newClipTimeSecs <= 0)
+				{
+					// Loop the clip
+					newClipTimeSecs += clipCtrl->clipTime_sec;
+					//newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					clipCtrl->keyframeIndex = clipCtrl->clip->keyframeCount-1;
+				}
+				else // If not, normal reverse skip
+				{
+					newKeyTimeSecs += clipCtrl->keyframe[clipCtrl->keyframeIndex-1].duration_sec;
+					clipCtrl->keyframeIndex--;
+				}
+			}
+		}
+		else
+		{
+			// All hell has broken lose...
 		}
 
-		//if (t >= t1) //Checking for passing over keyframe duration
-		//{
-		//	if (t1 != clipCtrl->clipPool->keyframeCount) //4 Case Forward Skip
-		//	{
-		//		t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex++].duration_sec;
-		//		t = 0;
-		//	}
-		//	else //5 Case Forward Terminus
-		//	{
-		//		clipCtrl->clipIndex++;
-		//	}
-		//}
-		//if (t <= t0) //Checking for passing under keyframe duration
-		//{
-		//	if (t1 != 0)  //6 Case Reverse Skip
-		//	{
-		//		t1 = clipCtrl->clipPool->keyframe[clipCtrl->keyframeIndex--].duration_sec;
-		//	}
-		//	else //7 Case Reverse Terminus
-		//	{
-		//		clipCtrl->clipIndex--;
-		//	}
-		//}
+
+		// Set the new values of the clip controller as determined by the logic above
+		clipCtrl->keyframeTime_sec = newKeyTimeSecs;
+		clipCtrl->clipTime_sec = newClipTimeSecs;
+		clipCtrl->keyframeParam = newKeyTimeSecs / clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+		clipCtrl->clipParam = newClipTimeSecs / clipCtrl->clipTime_sec;
+
+		// Lerp happens here after all the logic and values have been set using the new normalized values
+
+
 		
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-1
