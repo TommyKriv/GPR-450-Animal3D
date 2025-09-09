@@ -70,7 +70,7 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 			while (newKeyTimeSecs >= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec)
 			{
 				// If forward terminus
-				if (newClipTimeSecs >= clipCtrl->clipTime_sec)
+				if (newClipTimeSecs >= clipCtrl->clip[clipCtrl->clipIndex].duration_sec) //replaced prior check with clipCtrl->clip[clipCtrl->clipIndex].duration_sec, prior was just checking for sample clip duration
 				{
 					// Loop the clip
 					newClipTimeSecs -= clipCtrl->clipTime_sec;
@@ -83,7 +83,8 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 				}
 				else // If not, normal skip
 				{
-					newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					//newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					newKeyTimeSecs = 0; //Set to 0 as its a new keyframe, previous version was skipping ahead.
 					clipCtrl->keyframeIndex++;
 				}
 			}
@@ -119,12 +120,10 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 		// Set the new values of the clip controller as determined by the logic above
 		clipCtrl->keyframeTime_sec = newKeyTimeSecs;
 		clipCtrl->clipTime_sec = newClipTimeSecs;
-		clipCtrl->keyframeParam = newKeyTimeSecs / clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
-		clipCtrl->clipParam = newClipTimeSecs / clipCtrl->clipTime_sec;
+		clipCtrl->keyframeParam = newKeyTimeSecs / clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec; 
+		clipCtrl->clipParam = newClipTimeSecs / clipCtrl->clip[clipCtrl->clipIndex].duration_sec;
 
 		// Lerp happens here after all the logic and values have been set using the new normalized values
-
-
 		
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-1
