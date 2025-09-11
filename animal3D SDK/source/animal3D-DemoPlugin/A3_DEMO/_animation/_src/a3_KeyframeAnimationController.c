@@ -31,6 +31,7 @@
 #define A3_CLIPCTRL_DEFAULTNAME		("unnamed clip ctrl")
 #define A3_CLIPCTRL_SEARCHNAME		((ctrlName && *ctrlName) ? ctrlName : A3_CLIPCTRL_DEFAULTNAME)
 
+a3boolean reverse = a3false;
 
 //-----------------------------------------------------------------------------
 
@@ -54,8 +55,12 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-1: IMPLEMENT ME
 //-----------------------------------------------------------------------------
+		if (reverse == 1)
+		{
+			dt *= -1;
+		}
 		a3f64 newKeyTimeSecs = dt + (clipCtrl->keyframeTime_sec); // This is the new time in seconds
-		a3f64 newClipTimeSecs = dt + (clipCtrl->clipTime_sec);
+		a3f64 newClipTimeSecs = (clipCtrl->clipTime_sec) + dt;
 		// Playback is paused, do nothing and skip over lol lmao
 		if (dt == 0)
 		{
@@ -73,13 +78,17 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 				if (newClipTimeSecs >= clipCtrl->clip[clipCtrl->clipIndex].duration_sec) //replaced prior check with clipCtrl->clip[clipCtrl->clipIndex].duration_sec, prior was just checking for sample clip duration
 				{
 					// Loop the clip
-					newClipTimeSecs -= clipCtrl->clipTime_sec;
-					newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
-					if (newClipTimeSecs != newKeyTimeSecs)
-					{
-						int help = 0; // If this breakpoint is ever triggered, god help us all
-					}
-					clipCtrl->keyframeIndex = 0;
+					//newClipTimeSecs -= clipCtrl->clipTime_sec;
+					//newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					//if (newClipTimeSecs != newKeyTimeSecs)
+					//{
+					//	int help = 0; // If this breakpoint is ever triggered, god help us all
+					//}
+					//clipCtrl->keyframeIndex = 0;
+					newClipTimeSecs = clipCtrl->clip[clipCtrl->clipIndex].duration_sec;
+					newKeyTimeSecs = clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					reverse = 1; // flip
+					break; // stop advancing
 				}
 				else // If not, normal skip
 				{
@@ -97,16 +106,20 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 			while (newKeyTimeSecs <= 0)
 			{
 				// If reverse terminus
-				if (newClipTimeSecs <= 0)
+				if (newClipTimeSecs <= 0.01)
 				{
-					// Loop the clip
-					newClipTimeSecs += clipCtrl->clipTime_sec;
-					//newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
-					clipCtrl->keyframeIndex = clipCtrl->clip->keyframeCount-1;
+					//// Loop the clip
+					//newClipTimeSecs += clipCtrl->clipTime_sec;
+					////newKeyTimeSecs -= clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec;
+					//clipCtrl->keyframeIndex = clipCtrl->clip->keyframeCount-1;
+					newClipTimeSecs = 0;
+					newKeyTimeSecs = 0;
+					reverse = a3false; // flip
+					break; // stop rewinding
 				}
 				else // If not, normal reverse skip
 				{
-					newKeyTimeSecs += clipCtrl->keyframe[clipCtrl->keyframeIndex-1].duration_sec;
+					newKeyTimeSecs += clipCtrl->keyframe[clipCtrl->keyframeIndex - 1].duration_sec;
 					clipCtrl->keyframeIndex--;
 				}
 			}
@@ -121,10 +134,7 @@ a3i32 a3clipControllerUpdate(a3_ClipController* clipCtrl, a3f64 dt)
 		clipCtrl->keyframeTime_sec = newKeyTimeSecs;
 		clipCtrl->clipTime_sec = newClipTimeSecs;
 		clipCtrl->keyframeParam = newKeyTimeSecs / clipCtrl->keyframe[clipCtrl->keyframeIndex].duration_sec; 
-		clipCtrl->clipParam = newClipTimeSecs / clipCtrl->clip[clipCtrl->clipIndex].duration_sec;
-
-		// Lerp happens here after all the logic and values have been set using the new normalized values
-		
+		clipCtrl->clipParam = newClipTimeSecs / clipCtrl->clip[clipCtrl->clipIndex].duration_sec;		
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-1
 //-----------------------------------------------------------------------------
