@@ -166,6 +166,10 @@ void a3kinematicsUpdateHierarchyStateFK(a3_HierarchyState* activeHS,
 //****TO-DO-ANIM-PROJECT-2: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 
+		a3hierarchyPoseConcat(activeHS->localSpace, activeHS->animPose, baseHS->localSpace, activeHS->hierarchy->numNodes);
+
+		a3hierarchyPoseConvert(activeHS->localSpace, activeHS->hierarchy->numNodes, poseGroup->channel, poseGroup->order);
+
 
 
 //-----------------------------------------------------------------------------
