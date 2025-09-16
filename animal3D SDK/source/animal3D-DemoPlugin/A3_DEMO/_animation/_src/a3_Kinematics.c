@@ -170,7 +170,7 @@ void a3kinematicsUpdateHierarchyStateFK(a3_HierarchyState* activeHS,
 
 		a3hierarchyPoseConvert(activeHS->localSpace, activeHS->hierarchy->numNodes, poseGroup->channel, poseGroup->order);
 
-
+		a3kinematicsSolveForward(activeHS);
 
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-2
