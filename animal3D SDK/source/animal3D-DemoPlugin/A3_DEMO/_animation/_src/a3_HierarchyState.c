@@ -377,10 +377,18 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		if (0 == memcmp(fileLine, "NumSegments", 12))
 		{
 			if (fscanf(sourceFile, "%s", fileLine));
-			//numSegments = fileLine;
 			numSegments = atoi(fileLine);
 			hierarchy_out->numNodes = numSegments;
 		}
+		// Retrieve the numnber of frames
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "NumFrames", 10))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			numFrames = atoi(fileLine);
+			poseGroup_out->hposeCount = numFrames;
+		}
+
 
 		//hierarchy_out->nodes->index;
 
