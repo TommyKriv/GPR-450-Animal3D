@@ -285,7 +285,8 @@ a3i32 a3hierarchyStateUpdateObjectBindToCurrent(const a3_HierarchyState* state, 
 
 
 //-----------------------------------------------------------------------------
-
+// https://research.cs.wisc.edu/graphics/Courses/cs-838-1999/Jeff/HTR.html
+// This source was used for assistance
 // load HTR file, read and store complete pose group and hierarchy
 a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hierarchy* hierarchy_out, const a3byte* resourceFilePath)
 {
@@ -294,9 +295,90 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-2: IMPLEMENT ME
 //-----------------------------------------------------------------------------
+		// Ethan do these
 		
+		// Some variable declarations. These need to be accessed in several steps
+		a3boolean isHTR = true;
+		a3boolean isHTRS = true;
+		a3i32 numSegments = 0;
+		a3i32 numFrames = 0;
+		a3i32 framerate = 0;
+		a3_SpatialPoseEulerOrder eulerOrder = a3poseEulerOrder_xyz; // Default to XYZ
+
+		
+		// Opening file and prepping buffer
+		FILE* sourceFile = fopen(resourceFilePath, "r");
+		sourceFile;
+		char fileLine[100];
 
 
+		if(fscanf(sourceFile, "%s", fileLine));
+		// Grab from the file until we find the header to remove any meaningless junk in front of it
+		while (fileLine != "[Header]" && !EOF)
+		{
+			if(fscanf(sourceFile, "%s", fileLine));
+		}
+
+		// Get file data first
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "FileType", 9))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "GTR", 4))
+			{
+				isHTR = false;
+			}
+			else // Assume HTR if it isn't GTR
+			{
+				isHTR = true;
+			}
+		}
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "DataType", 9))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 != memcmp(fileLine, "HTRS", 5))
+			{
+				isHTRS = false;
+				// Solve other orders later, doesn't matter since the file is in the proper order
+				return -1;
+			}
+			else // Assume it is Transform rotation scale
+			{
+				isHTRS = true;
+			}
+		}
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "FileVersion", 12))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 != memcmp(fileLine, "1", 2))
+			{
+				// file should be version 1
+				return -1;
+			}
+			else // Move forward
+			{
+				
+			}
+		}
+
+		// Now it's time to fetch the data for the hierarchy
+		// Retrieve the number of segments
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "NumSegments", 12))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			//numSegments = fileLine;
+			numSegments = atoi(fileLine);
+			hierarchy_out->numNodes = numSegments;
+		}
+
+		//hierarchy_out->nodes->index;
+
+
+		a3boolean debugBreakpoint = true;
+		
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-2
 //-----------------------------------------------------------------------------
@@ -330,7 +412,7 @@ a3i32 a3hierarchyPoseGroupSaveHTR(const a3_HierarchyPoseGroup* poseGroup_in, con
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-OPTIONAL: IMPLEMENT ME
 //-----------------------------------------------------------------------------
-
+		// Ethan do these
 
 
 //-----------------------------------------------------------------------------
