@@ -312,6 +312,8 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		a3i32 numFrames = 0;
 		a3i32 framerate = 0;
 		a3_SpatialPoseEulerOrder eulerOrder = a3poseEulerOrder_xyz; // Default to XYZ
+		a3_BasisAxis axisToUse = basis_yp;
+		float calibrationUnits = 0.0f;
 
 		
 		// Opening file and prepping buffer
@@ -378,7 +380,8 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		{
 			if (fscanf(sourceFile, "%s", fileLine));
 			numSegments = atoi(fileLine);
-			hierarchy_out->numNodes = numSegments;
+			//hierarchy_out->numNodes = numSegments;
+			a3hierarchyCreate(hierarchy_out, numSegments, NULL);
 		}
 		// Retrieve the numnber of frames
 		if (fscanf(sourceFile, "%s", fileLine));
@@ -386,11 +389,31 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		{
 			if (fscanf(sourceFile, "%s", fileLine));
 			numFrames = atoi(fileLine);
-			poseGroup_out->hposeCount = numFrames;
+			a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, numFrames);
+		}
+		// Retrieve Framerate
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "DataFrameRate", 14))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			framerate = atoi(fileLine);
+		}
+		// Retrieve euler angle order
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "EulerRotationOrder", 19))
+		{
+			poseGroup_out->order[0];
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "XYZ", 4)) { eulerOrder = a3poseEulerOrder_xyz; }
+			else if (0 == memcmp(fileLine, "YZX", 4)) { eulerOrder = a3poseEulerOrder_yzx; }
+			else if (0 == memcmp(fileLine, "ZXY", 4)) { eulerOrder = a3poseEulerOrder_zxy; }
+			else if (0 == memcmp(fileLine, "YXZ", 4)) { eulerOrder = a3poseEulerOrder_yxz; }
+			else if (0 == memcmp(fileLine, "XZY", 4)) { eulerOrder = a3poseEulerOrder_xzy; }
+			else if (0 == memcmp(fileLine, "ZYX", 4)) { eulerOrder = a3poseEulerOrder_zyx; }
 		}
 
-
-		//hierarchy_out->nodes->index;
+		poseGroup_out->channel[0];
+		// a3_SpatialPose* debugPose = poseGroup_out->hpose[1].hpose_base;
 
 
 		a3boolean debugBreakpoint = true;
