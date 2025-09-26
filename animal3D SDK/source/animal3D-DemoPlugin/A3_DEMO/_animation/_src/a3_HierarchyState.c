@@ -273,12 +273,10 @@ a3i32 a3hierarchyStateUpdateObjectBindToCurrent(const a3_HierarchyState* state, 
 //****TO-DO-ANIM-PROJECT-2: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 		
-		// loop through all nodes in the hierarchy
+		// loop nodes
 		for (i = 0; i < state->hierarchy->numNodes; i++)
 		{
-			// bind->current = currentObject * inverse(bindObject)
-			a3real4x4Product(
-				state->objectSpaceBindToCurrent->hpose_base[i].transformMat.m,   // dest
+			a3real4x4Product(state->objectSpaceBindToCurrent->hpose_base[i].transformMat.m,   // dest
 				state->objectSpace->hpose_base[i].transformMat.m,                // current object-space
 				state_bind->objectSpaceInv->hpose_base[i].transformMat.m);       // bind object-space inverse
 		}
