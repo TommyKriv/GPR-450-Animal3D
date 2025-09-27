@@ -306,7 +306,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 //****TO-DO-ANIM-PROJECT-2: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 		// Ethan do these
-		
+		/*
 		//Some variable declarations. These need to be accessed in several steps
 		a3boolean isHTR = true;
 		a3boolean isHTRS = true;
@@ -506,13 +506,37 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 				a3hierarchySetNode(hierarchy_out, i, parentIndex, nodeName);				
 			}
 		}
+
+		// Extract base pose
+
+
 		
-		
+		// Final part, filling the posegroup with all poses
+		for (a3ui32 i = 0; i < numFrames; i++)
+		{
+			for (a3ui32 j = 0; j < numFrames; j++)
+			{
+				a3boolean shouldLoop = true;
+				while (shouldLoop)
+				{
+					if (fscanf(sourceFile, "%s", fileLine)); // Clear the header
+					if (0 == memcmp(fileLine, "[", 1))
+					{
+						shouldLoop = false;
+					}
+				}
+				a3_SpatialPose newPose;
+				
+
+
+				//a3spatialPoseSetTranslation(newPose, );
+			}
+		}
 
 		poseGroup_out->channel;
 		// a3_SpatialPose* debugPose = poseGroup_out->hpose[1].hpose_base;
 
-
+		*/
 		a3boolean debugBreakpoint = true;
 		
 //-----------------------------------------------------------------------------

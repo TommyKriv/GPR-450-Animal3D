@@ -41,7 +41,7 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		// Concat (matrix mul) them in the correct order
 		// v' = t + R * S * v
 
-		a3real4x4 rx, ry, rz, scale, rotation;// , holder;
+		a3real4x4 rx, ry, rz, scale, rotation, holder;
 
 		if (channel && a3poseChannel_rotate_x)
 		{
@@ -103,10 +103,10 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		}
 
 		a3real4x4ConcatR(rotation, scale);
-		//a3real4x4Product(holder, scale, spatialPose->translate.v);
-		//a3real4x4Sum(spatialPose->translate.v, holder, spatialPose->transformMat.m);
+		a3real4x4Product(holder, scale, spatialPose->translate.v);
+		a3real4x4Sum(spatialPose->translate.v, holder, spatialPose->transformMat.m);
 
-		//a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+		a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
 
 		// This part can stay
 		a3real3Add(spatialPose->transformMat.m[3], spatialPose->translate.v);
