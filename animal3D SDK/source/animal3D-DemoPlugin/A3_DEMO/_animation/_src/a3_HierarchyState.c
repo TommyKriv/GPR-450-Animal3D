@@ -307,118 +307,213 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 //-----------------------------------------------------------------------------
 		// Ethan do these
 		
-		// Some variable declarations. These need to be accessed in several steps
-		//a3boolean isHTR = true;
-		//a3boolean isHTRS = true;
-		//a3i32 numSegments = 0;
-		//a3i32 numFrames = 0;
-		//a3i32 framerate = 0;
-		//a3_SpatialPoseEulerOrder eulerOrder = a3poseEulerOrder_xyz; // Default to XYZ
-		//a3_BasisAxis axisToUse = basis_yp;
-		//float calibrationUnits = 0.0f;
+		//Some variable declarations. These need to be accessed in several steps
+		a3boolean isHTR = true;
+		a3boolean isHTRS = true;
+		a3ui32 numSegments = 0;
+		a3i32 numFrames = 0;
+		a3i32 framerate = 0;
+		a3_SpatialPoseEulerOrder eulerOrder = a3poseEulerOrder_xyz; // Default to XYZ
+		a3_BasisAxis axisToUse = basis_yp;
+		float calibrationUnits = 0.0f;
+		a3boolean isDegrees = true;
+		// Axis
+		// 0 = X
+		// 1 = Y
+		// 2 = Z
+		a3i32 globalGravityAxis = 1; // Y by default
+		a3i32 boneAxis = 1; // Y by default
+		float scaleFactor;
 
-		//
-		//// Opening file and prepping buffer
-		//FILE* sourceFile = fopen(resourceFilePath, "r");
-		//sourceFile;
-		//char fileLine[100];
-
-
-		//if(fscanf(sourceFile, "%s", fileLine));
-		//// Grab from the file until we find the header to remove any meaningless junk in front of it
-		//while (fileLine != "[Header]" && !EOF)
-		//{
-		//	if(fscanf(sourceFile, "%s", fileLine));
-		//}
-
-		//// Get file data first
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "FileType", 9))
-		//{
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	if (0 == memcmp(fileLine, "GTR", 4))
-		//	{
-		//		isHTR = false;
-		//	}
-		//	else // Assume HTR if it isn't GTR
-		//	{
-		//		isHTR = true;
-		//	}
-		//}
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "DataType", 9))
-		//{
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	if (0 != memcmp(fileLine, "HTRS", 5))
-		//	{
-		//		isHTRS = false;
-		//		// Solve other orders later, doesn't matter since the file is in the proper order
-		//		return -1;
-		//	}
-		//	else // Assume it is Transform rotation scale
-		//	{
-		//		isHTRS = true;
-		//	}
-		//}
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "FileVersion", 12))
-		//{
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	if (0 != memcmp(fileLine, "1", 2))
-		//	{
-		//		// file should be version 1
-		//		return -1;
-		//	}
-		//	else // Move forward
-		//	{
-		//		
-		//	}
-		//}
-
-		//// Now it's time to fetch the data for the hierarchy
-		//// Retrieve the number of segments
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "NumSegments", 12))
-		//{
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	numSegments = atoi(fileLine);
-		//	//hierarchy_out->numNodes = numSegments;
-		//	a3hierarchyCreate(hierarchy_out, numSegments, NULL);
-		//}
-		//// Retrieve the numnber of frames
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "NumFrames", 10))
-		//{
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	numFrames = atoi(fileLine);
-		//	a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, numFrames);
-		//}
-		//// Retrieve Framerate
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "DataFrameRate", 14))
-		//{
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	framerate = atoi(fileLine);
-		//}
-		//// Retrieve euler angle order
-		//if (fscanf(sourceFile, "%s", fileLine));
-		//if (0 == memcmp(fileLine, "EulerRotationOrder", 19))
-		//{
-		//	poseGroup_out->order[0];
-		//	if (fscanf(sourceFile, "%s", fileLine));
-		//	if (0 == memcmp(fileLine, "XYZ", 4)) { eulerOrder = a3poseEulerOrder_xyz; }
-		//	else if (0 == memcmp(fileLine, "YZX", 4)) { eulerOrder = a3poseEulerOrder_yzx; }
-		//	else if (0 == memcmp(fileLine, "ZXY", 4)) { eulerOrder = a3poseEulerOrder_zxy; }
-		//	else if (0 == memcmp(fileLine, "YXZ", 4)) { eulerOrder = a3poseEulerOrder_yxz; }
-		//	else if (0 == memcmp(fileLine, "XZY", 4)) { eulerOrder = a3poseEulerOrder_xzy; }
-		//	else if (0 == memcmp(fileLine, "ZYX", 4)) { eulerOrder = a3poseEulerOrder_zyx; }
-		//}
-
-		//poseGroup_out->channel[0];
-		//// a3_SpatialPose* debugPose = poseGroup_out->hpose[1].hpose_base;
+		
+		// Opening file and prepping buffer
+		FILE* sourceFile = fopen(resourceFilePath, "r");
+		sourceFile;
+		char fileLine[100];
 
 
-		//a3boolean debugBreakpoint = true;
+		if(fscanf(sourceFile, "%s", fileLine));
+		// Grab from the file until we find the header to remove any meaningless junk in front of it
+		while (fileLine != "[Header]" && !EOF)
+		{
+			if(fscanf(sourceFile, "%s", fileLine));
+		}
+
+		// Get file data first
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "FileType", 9))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "GTR", 4))
+			{
+				isHTR = false;
+			}
+			else // Assume HTR if it isn't GTR
+			{
+				isHTR = true;
+			}
+		}
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "DataType", 9))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 != memcmp(fileLine, "HTRS", 5))
+			{
+				isHTRS = false;
+				// Solve other orders later, doesn't matter since the file is in the proper order
+				return -1;
+			}
+			else // Assume it is Transform rotation scale
+			{
+				isHTRS = true;
+			}
+		}
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "FileVersion", 12))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 != memcmp(fileLine, "1", 2))
+			{
+				// file should be version 1
+				return -1;
+			}
+			else // Move forward
+			{
+				
+			}
+		}
+
+		// Now it's time to fetch the data for the hierarchy
+		// Retrieve the number of segments
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "NumSegments", 12))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			numSegments = atoi(fileLine);
+			//hierarchy_out->numNodes = numSegments;
+			a3hierarchyCreate(hierarchy_out, numSegments, NULL);
+		}
+		// Retrieve the numnber of frames
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "NumFrames", 10))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			numFrames = atoi(fileLine);
+			a3hierarchyPoseGroupCreate(poseGroup_out, hierarchy_out, numFrames);
+		}
+		// Retrieve Framerate
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "DataFrameRate", 14))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			framerate = atoi(fileLine);
+		}
+		// Retrieve euler angle order
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "EulerRotationOrder", 19))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "XYZ", 4)) { eulerOrder = a3poseEulerOrder_xyz; }
+			else if (0 == memcmp(fileLine, "YZX", 4)) { eulerOrder = a3poseEulerOrder_yzx; }
+			else if (0 == memcmp(fileLine, "ZXY", 4)) { eulerOrder = a3poseEulerOrder_zxy; }
+			else if (0 == memcmp(fileLine, "YXZ", 4)) { eulerOrder = a3poseEulerOrder_yxz; }
+			else if (0 == memcmp(fileLine, "XZY", 4)) { eulerOrder = a3poseEulerOrder_xzy; }
+			else if (0 == memcmp(fileLine, "ZYX", 4)) { eulerOrder = a3poseEulerOrder_zyx; }
+			poseGroup_out->order[0] = eulerOrder;
+		}
+		// Retrieve calibration units
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "CalibrationUnits", 17))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "mm", 3)) { calibrationUnits = .001f; }
+			else
+			{
+				// WIP
+				int index = 0;
+				char firstNum[100];
+				while (fileLine[index] != '/')
+				{
+					firstNum[index] = fileLine[index];
+					index++;
+				}
+			}
+		}
+		// Retrieve rotation units
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "RotationUnits", 14))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "Degrees", 8)) { isDegrees = true; }
+			else
+			{
+				isDegrees = false;
+			}
+		}
+		// Retrieve gravity axis
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "GlobalAxisofGravity", 20))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "Y", 2)) { globalGravityAxis = 1; }
+			else if(0 == memcmp(fileLine, "X", 2)) { globalGravityAxis = 0; }
+			else if(0 == memcmp(fileLine, "Z", 2)) { globalGravityAxis = 2; }
+		}
+		// Retrieve bone axis
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "BoneLengthAxis", 15))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			if (0 == memcmp(fileLine, "Y", 2)) { boneAxis = 1; }
+			else if (0 == memcmp(fileLine, "X", 2)) { boneAxis = 0; }
+			else if (0 == memcmp(fileLine, "Z", 2)) { boneAxis = 2; }
+		}
+		// Retrieve global scale factor
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "ScaleFactor", 12))
+		{
+			if (fscanf(sourceFile, "%s", fileLine));
+			scaleFactor = (float)atof(fileLine);
+		}
+		// Moving on to setting up the hierarchy
+		if (fscanf(sourceFile, "%s", fileLine));
+		if (0 == memcmp(fileLine, "[SegmentNames&Hierarchy]", 25))
+		{
+			for (a3ui32 i = 0; i < numSegments; i++)
+			{
+				char nodeName[32] = "";
+				char parentName[32] = "";
+				if (fscanf(sourceFile, "%s", fileLine));
+				strcpy(nodeName, fileLine);
+				if (fscanf(sourceFile, "%s", fileLine));
+				strcpy(parentName, fileLine);
+				a3i32 parentIndex = -1;
+				if (0 == memcmp(parentName, "GLOBAL", 7))
+				{
+					parentIndex = -1;
+				}
+				else
+				{
+					for (a3ui32 j = 0; j < hierarchy_out->numNodes; j++)
+					{
+						if (0 == memcmp(parentName, hierarchy_out->nodes[j].name, 32))
+						{
+							parentIndex = j;
+							break;
+						}
+					}
+				}
+				a3hierarchySetNode(hierarchy_out, i, parentIndex, nodeName);				
+			}
+		}
+		
+		
+
+		poseGroup_out->channel;
+		// a3_SpatialPose* debugPose = poseGroup_out->hpose[1].hpose_base;
+
+
+		a3boolean debugBreakpoint = true;
 		
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-2
