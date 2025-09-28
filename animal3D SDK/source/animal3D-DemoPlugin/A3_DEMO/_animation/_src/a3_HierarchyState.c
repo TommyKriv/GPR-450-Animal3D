@@ -467,6 +467,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		{
 			if (fscanf(sourceFile, "%s", fileLine));
 			scaleFactor = (float)atof(fileLine);
+			scaleFactor *= calibrationUnits;
 		}
 		poseGroup_out->channel[0] = a3poseChannel_rotate_xyz;
 		poseGroup_out->channel[1] = a3poseChannel_scale_xyz;
