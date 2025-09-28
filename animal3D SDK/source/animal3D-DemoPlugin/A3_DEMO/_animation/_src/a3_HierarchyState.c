@@ -468,6 +468,11 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 			if (fscanf(sourceFile, "%s", fileLine));
 			scaleFactor = (float)atof(fileLine);
 		}
+		poseGroup_out->channel[0] = a3poseChannel_rotate_xyz;
+		poseGroup_out->channel[1] = a3poseChannel_scale_xyz;
+		poseGroup_out->channel[2] = a3poseChannel_translate_xyz;
+		poseGroup_out->channel[3] = a3poseChannel_user_xyz;
+
 		// Moving on to setting up the hierarchy
 		if (fscanf(sourceFile, "%s", fileLine));
 		if (0 == memcmp(fileLine, "[SegmentNames&Hierarchy]", 25))

@@ -41,7 +41,21 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		// Concat (matrix mul) them in the correct order
 		// v' = t + R * S * v
 
-		a3real4x4 rx, ry, rz, scale, rotation, holder;
+		a3real4x4 rx, ry, rz, sx, sy, sz, scale, rotation;
+
+
+		if (channel && a3poseChannel_scale_x)
+		{
+			a3real4x4SetScale(sx, spatialPose->scale.x);
+		}
+		if (channel && a3poseChannel_scale_y)
+		{
+			a3real4x4SetScale(sy, spatialPose->scale.x);
+		}
+		if (channel && a3poseChannel_scale_z)
+		{
+			a3real4x4SetScale(sz, spatialPose->scale.x);
+		}
 
 		if (channel && a3poseChannel_rotate_x)
 		{
@@ -55,58 +69,60 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 			while (spatialPose->rotate.y < -360.0f) spatialPose->rotate.y += 360.0f;
 			a3real4x4SetRotateY(ry, spatialPose->rotate.y);
 		}
-		if (channel && a3poseChannel_rotate_z) 
+		if (channel && a3poseChannel_rotate_z)
 		{
 			while (spatialPose->rotate.z > 360.0f)  spatialPose->rotate.z -= 360.0f;
 			while (spatialPose->rotate.z < -360.0f) spatialPose->rotate.z += 360.0f;
 			a3real4x4SetRotateZ(rz, spatialPose->rotate.z);
 		}
+		a3real4x4Product(scale, sx, sy);
+		a3real4x4Product(scale, scale, sz);
 
 		switch (order)
 		{
-			case a3poseEulerOrder_xyz:
-			{
-				a3real4x4Product(rotation, rx, ry);
-				a3real4x4Product(rotation, rotation, rz);
-				break;
-			}
-			case(a3poseEulerOrder_yzx):
-			{
-				a3real4x4Product(rotation, ry, rz);
-				a3real4x4Product(rotation, rotation, rx);
-				break;
-			}
-			case(a3poseEulerOrder_zxy):
-			{
-				a3real4x4Product(rotation, rz, rx);
-				a3real4x4Product(rotation, rotation, ry);
-				break;
-			}
-			case(a3poseEulerOrder_yxz):
-			{
-				a3real4x4Product(rotation, ry, rx);
-				a3real4x4Product(rotation, rotation, rz);
-				break;
-			}
-			case(a3poseEulerOrder_xzy):
-			{
-				a3real4x4Product(rotation, rx, rz);
-				a3real4x4Product(rotation, rotation, ry);
-				break;
-			}
-			case(a3poseEulerOrder_zyx):
-			{
-				a3real4x4Product(rotation, rz, ry);
-				a3real4x4Product(rotation, rotation, rx);
-				break;
-			}
+		case a3poseEulerOrder_xyz:
+		{
+			a3real4x4Product(rotation, rx, ry);
+			a3real4x4Product(rotation, rotation, rz);
+			break;
+		}
+		case(a3poseEulerOrder_yzx):
+		{
+			a3real4x4Product(rotation, ry, rz);
+			a3real4x4Product(rotation, rotation, rx);
+			break;
+		}
+		case(a3poseEulerOrder_zxy):
+		{
+			a3real4x4Product(rotation, rz, rx);
+			a3real4x4Product(rotation, rotation, ry);
+			break;
+		}
+		case(a3poseEulerOrder_yxz):
+		{
+			a3real4x4Product(rotation, ry, rx);
+			a3real4x4Product(rotation, rotation, rz);
+			break;
+		}
+		case(a3poseEulerOrder_xzy):
+		{
+			a3real4x4Product(rotation, rx, rz);
+			a3real4x4Product(rotation, rotation, ry);
+			break;
+		}
+		case(a3poseEulerOrder_zyx):
+		{
+			a3real4x4Product(rotation, rz, ry);
+			a3real4x4Product(rotation, rotation, rx);
+			break;
+		}
 		}
 
 		a3real4x4ConcatR(rotation, scale);
-		a3real4x4Product(holder, scale, &spatialPose->translate.v);
-		a3real4x4Sum(&spatialPose->translate.v, holder, spatialPose->transformMat.m);
+		a3real4x4Product(&spatialPose->transformMat.m[3], scale, &spatialPose->transformMat.m[3]);
+		a3real4x4Sum(&spatialPose->transformMat.m[3], &spatialPose->transformMat.m[3], &spatialPose->translate.v);
 
-		a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+		//a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
 
 		// This part can stay
 		a3real3Add(spatialPose->transformMat.m[3], spatialPose->translate.v);
