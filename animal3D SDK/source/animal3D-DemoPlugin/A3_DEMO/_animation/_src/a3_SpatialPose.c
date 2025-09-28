@@ -103,8 +103,8 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		}
 
 		a3real4x4ConcatR(rotation, scale);
-		a3real4x4Product(holder, scale, spatialPose->translate.v);
-		a3real4x4Sum(spatialPose->translate.v, holder, spatialPose->transformMat.m);
+		a3real4x4Product(holder, scale, &spatialPose->translate.v);
+		a3real4x4Sum(&spatialPose->translate.v, holder, spatialPose->transformMat.m);
 
 		a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
 
