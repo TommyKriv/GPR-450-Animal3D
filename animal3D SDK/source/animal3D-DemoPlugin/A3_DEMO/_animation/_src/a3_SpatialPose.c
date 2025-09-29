@@ -42,6 +42,8 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		// v' = t + R * S * v
 
 		a3real4 scale, rotation;
+		a3real4Set(scale, 0, 0, 0, 1);
+		a3real4Set(rotation, 0, 0, 0, 1);
 
 		if (channel && a3poseChannel_scale_x)
 		{
