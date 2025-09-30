@@ -707,7 +707,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		if (fscanf(sourceFile, "%s", fileLine));
 		
 
-		for (a3ui32 i = 0; i < 67; i++)
+		for (a3ui32 i = 0; i < numSegments; i++)
 		{
 			if (fscanf(sourceFile, "%s", fileLine)); // Extract header
 			a3f32 xComp, yComp, zComp, scaleComp;
@@ -733,8 +733,6 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 			}
 			
 		}
-
-		poseGroup_out->hpose[1].hpose_base = &poseGroup_out->pose[67];
 		
 		a3boolean debugBreakpoint = true;
 		return 1;
