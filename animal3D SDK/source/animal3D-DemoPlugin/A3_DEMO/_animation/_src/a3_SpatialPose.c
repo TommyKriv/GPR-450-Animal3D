@@ -40,88 +40,83 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		// Form matrix for each channel
 		// Concat (matrix mul) them in the correct order
 		// v' = t + R * S * v
+		//a3real4x4SetIdentity(spatialPose->transformMat.m);
+		spatialPose->transformMat.m[3][0] = 0;
+		spatialPose->transformMat.m[3][1] = 0;
+		spatialPose->transformMat.m[3][2] = 0;
+		a3real4x4 scale, rotation;
+		a3real4x4SetIdentity(scale);
+		a3real4x4SetIdentity(rotation);
 
-		a3real4 scale, rotation;
-		a3real4Set(scale, 0, 0, 0, 1);
-		a3real4Set(rotation, 0, 0, 0, 1);
-
-		if (channel && a3poseChannel_scale_x)
+		if (channel)
 		{
-			a3real4Add(scale, &spatialPose->scale.x);
+			a3real4x4SetScale(scale, spatialPose->scale.x);
 		}
-		if (channel && a3poseChannel_scale_y)
-		{
-			a3real4Add(scale, &spatialPose->scale.y);
-		}
-		if (channel && a3poseChannel_scale_z)
-		{
-			a3real4Add(scale, &spatialPose->scale.z);
-		}
-
-		if (channel && a3poseChannel_rotate_x)
+		if (channel)
 		{
 			while (spatialPose->rotate.x > 360.0f)  spatialPose->rotate.x -= 360.0f;
 			while (spatialPose->rotate.x < -360.0f) spatialPose->rotate.x += 360.0f;
 		}
-		if (channel && a3poseChannel_rotate_y)
+		if (channel)
 		{
 			while (spatialPose->rotate.y > 360.0f)  spatialPose->rotate.y -= 360.0f;
 			while (spatialPose->rotate.y < -360.0f) spatialPose->rotate.y += 360.0f;
 		}
-		if (channel && a3poseChannel_rotate_z)
+		if (channel)
 		{
 			while (spatialPose->rotate.z > 360.0f)  spatialPose->rotate.z -= 360.0f;
 			while (spatialPose->rotate.z < -360.0f) spatialPose->rotate.z += 360.0f;
 		}
 
-		switch (order)
-		{
-		case a3poseEulerOrder_xyz:
-		{
-			a3real4Add(rotation, &spatialPose->rotate.x);
-			a3real4Add(rotation, &spatialPose->rotate.y);
-			a3real4Add(rotation, &spatialPose->rotate.z);
-			break;
-		}
-		case(a3poseEulerOrder_yzx):
-		{
-			a3real4Add(rotation, &spatialPose->rotate.y);
-			a3real4Add(rotation, &spatialPose->rotate.z);
-			a3real4Add(rotation, &spatialPose->rotate.x);
-			break;
-		}
-		case(a3poseEulerOrder_zxy):
-		{
-			a3real4Add(rotation, &spatialPose->rotate.z);
-			a3real4Add(rotation, &spatialPose->rotate.x);
-			a3real4Add(rotation, &spatialPose->rotate.y);
-			break;
-		}
-		case(a3poseEulerOrder_yxz):
-		{
-			a3real4Add(rotation, &spatialPose->rotate.y);
-			a3real4Add(rotation, &spatialPose->rotate.x);
-			a3real4Add(rotation, &spatialPose->rotate.z);
-			break;
-		}
-		case(a3poseEulerOrder_xzy):
-		{
-			a3real4Add(rotation, &spatialPose->rotate.x);
-			a3real4Add(rotation, &spatialPose->rotate.z);
-			a3real4Add(rotation, &spatialPose->rotate.y);
-			break;
-		}
-		case(a3poseEulerOrder_zyx):
-		{
-			a3real4Add(rotation, &spatialPose->rotate.z);
-			a3real4Add(rotation, &spatialPose->rotate.y);
-			a3real4Add(rotation, &spatialPose->rotate.x);
-			break;
-		}
-		}
+		//switch (order)
+		//{
+		//case(a3poseEulerOrder_xyz):
+		//{
+		//	a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+		//	break;
+		//}
+		///*case(a3poseEulerOrder_yzx):
+		//{
+		//	a3real4Add(rotation, &spatialPose->rotate.y);
+		//	a3real4Add(rotation, &spatialPose->rotate.z);
+		//	a3real4Add(rotation, &spatialPose->rotate.x);
+		//	break;
+		//}
+		//case(a3poseEulerOrder_zxy):
+		//{
+		//	a3real4Add(rotation, &spatialPose->rotate.z);
+		//	a3real4Add(rotation, &spatialPose->rotate.x);
+		//	a3real4Add(rotation, &spatialPose->rotate.y);
+		//	break;
+		//}
+		//case(a3poseEulerOrder_yxz):
+		//{
+		//	a3real4Add(rotation, &spatialPose->rotate.y);
+		//	a3real4Add(rotation, &spatialPose->rotate.x);
+		//	a3real4Add(rotation, &spatialPose->rotate.z);
+		//	break;
+		//}
+		//case(a3poseEulerOrder_xzy):
+		//{
+		//	a3real4Add(rotation, &spatialPose->rotate.x);
+		//	a3real4Add(rotation, &spatialPose->rotate.z);
+		//	a3real4Add(rotation, &spatialPose->rotate.y);
+		//	break;
+		//}*/
+		//case(a3poseEulerOrder_zyx):
+		//{
+		//	a3real4x4SetRotateZYX(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+		//	break;
+		//}
+		//}
+		a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+		a3real4x4ConcatL(scale, rotation);
+		a3real4x4ConcatL(spatialPose->transformMat.m, scale);
+		
 
-		a3real4ProductComp(scale, rotation, scale);
-		a3real3MulComp(spatialPose->transformMat.m[3], scale);
+		/*a3real4ProductComp(scale, rotation, scale);
+		a3real3MulComp(spatialPose->transformMat.m[3], scale);*/
+		//a3real4x4Diff(&spatialPose->transformMat.m[3], &spatialPose->transformMat.m[3], transform);
 		//a3real4x4Sum(&spatialPose->transformMat.m[3], &spatialPose->transformMat.m[3], transform);
 
 		//a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);

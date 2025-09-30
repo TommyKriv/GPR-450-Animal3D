@@ -571,6 +571,7 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 						xComp = (float)atof(fileLine);
 						break;
 					}
+					poseGroup_out->order[i] = eulerOrder;
 					a3spatialPoseSetTranslation(&poseGroup_out->pose[i], xComp*scaleFactor, yComp*scaleFactor, zComp*scaleFactor);
 
 					// Grab rotation
@@ -800,113 +801,34 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 		if (fscanf(sourceFile, "%s", fileLine));
 		
 
-		for (a3ui32 i = 67; i < 134; i++)
+		for (a3ui32 i = 0; i < 67; i++)
 		{
-			a3f32 xComp, yComp, zComp, scaleComp;
 			if (fscanf(sourceFile, "%s", fileLine)); // Extract header
-			if (fscanf(sourceFile, "%s", fileLine)); // Extract number
-			if (fscanf(sourceFile, "%s", fileLine));
-			zComp = (float)atof(fileLine);
-			if (fscanf(sourceFile, "%s", fileLine));
-			yComp = (float)atof(fileLine);
-			if (fscanf(sourceFile, "%s", fileLine));
-			xComp = (float)atof(fileLine);
-			a3spatialPoseSetTranslation(&poseGroup_out->pose[i], xComp, yComp, zComp);
-			if (fscanf(sourceFile, "%s", fileLine));
-			zComp = (float)atof(fileLine);
-			if (fscanf(sourceFile, "%s", fileLine));
-			yComp = (float)atof(fileLine);
-			if (fscanf(sourceFile, "%s", fileLine));
-			xComp = (float)atof(fileLine);
-			a3spatialPoseSetRotation(&poseGroup_out->pose[i], xComp, yComp, zComp);
-			if (fscanf(sourceFile, "%s", fileLine));
-			scaleComp = (float)atof(fileLine);
-
-
-
-			for (a3ui32 j = 2; j <= 24; j++)
+			a3f32 xComp, yComp, zComp, scaleComp;
+			for (a3ui32 j = 0; j < 24; j++)
 			{
+				if (fscanf(sourceFile, "%s", fileLine)); // Extract number
 				if (fscanf(sourceFile, "%s", fileLine));
+				zComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
+				yComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
+				xComp = (float)atof(fileLine);
+				a3spatialPoseSetTranslation(&poseGroup_out->pose[i + (j * 67)], xComp*scaleFactor, yComp*scaleFactor, zComp*scaleFactor);
 				if (fscanf(sourceFile, "%s", fileLine));
+				zComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
+				yComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
+				xComp = (float)atof(fileLine);
+				a3spatialPoseSetRotation(&poseGroup_out->pose[i + (j * 67)], xComp, yComp, zComp);
 				if (fscanf(sourceFile, "%s", fileLine));
-				if (fscanf(sourceFile, "%s", fileLine));
+				scaleComp = (float)atof(fileLine);
 			}
 		}
 
 		poseGroup_out->hpose[1].hpose_base = &poseGroup_out->pose[67];
-		/*
-a3spatialPoseSetTranslation(&poseGroup_out->pose[67], (float)atof("-8.671660271e-18"), (float)atof("1039.914673"), (float)atof("20.76076508"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[68], (float)atof("9.234152094e-05"), (float)atof("101.8158798"), (float)atof("1.31520927"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[69], (float)atof("2.519402869e-06"), (float)atof("100.8345108"), (float)atof("-10.00804329"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[70], (float)atof("3.4574864e-06"), (float)atof("91.00010681"), (float)atof("-13.73417091"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[71], (float)atof("6.334285445e-06"), (float)atof("166.7166901"), (float)atof("-25.16167831"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[72], (float)atof("-4.242318937e-06"), (float)atof("96.17874908"), (float)atof("16.85007477"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[73], (float)atof("0"), (float)atof("178.2"), (float)atof("25.8"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[74], (float)atof("30.67560577"), (float)atof("64.09507751"), (float)atof("92.83554077"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[75], (float)atof("-30.67550468"), (float)atof("64.09500122"), (float)atof("92.83547211"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[76], (float)atof("45.70446396"), (float)atof("109.4598465"), (float)atof("-26.27988052"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[77], (float)atof("105.9236984"), (float)atof("-5.245829105"), (float)atof("-22.32120132"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[78], (float)atof("278.4151917"), (float)atof("-0.0008942864952"), (float)atof("0.0003745891154"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[79], (float)atof("283.2883911"), (float)atof("-0.0001744071778"), (float)atof("0.0003780452244"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[80], (float)atof("24.66140366"), (float)atof("-15.7504921"), (float)atof("26.82413483"));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[81], (float)atof("32.29803848"), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[82], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[83], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[84], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[85], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[86], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[87], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[88], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[89], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[90], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[91], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[92], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[93], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[94], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[95], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[96], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[97], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[98], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[99], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[100], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[101], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[102], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[103], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[104], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[105], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[106], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[107], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[108], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[109], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[110], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[111], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[112], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[113], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[114], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[115], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[116], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[117], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[118], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[119], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[120], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[121], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[122], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[123], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[124], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[125], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[126], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[127], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[128], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[129], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[130], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[131], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[132], (float)atof(""), (float)atof(""), (float)atof(""));
-a3spatialPoseSetTranslation(&poseGroup_out->pose[133], (float)atof(""), (float)atof(""), (float)atof(""));
-*/
+		
 		a3boolean debugBreakpoint = true;
 		return 1;
 //-----------------------------------------------------------------------------
