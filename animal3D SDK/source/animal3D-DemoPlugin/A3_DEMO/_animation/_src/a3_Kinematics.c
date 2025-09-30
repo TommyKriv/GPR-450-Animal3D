@@ -72,9 +72,9 @@ a3i32 a3kinematicsSolveForwardPartial(const a3_HierarchyState* hierarchyState, c
 //-----------------------------------------------------------------------------
 
 		a3ui32 i;
-		for (i = firstIndex; i < nodeCount; i++)
+		for (i = firstIndex; i < nodeCount; i++) //Run through node
 		{
-			if (hierarchyState->hierarchy->nodes[i].parentIndex < 0)
+			if (hierarchyState->hierarchy->nodes[i].parentIndex < 0) 
 			{
 				//we are root
 				a3kinematicsSolveForwardRoot(hierarchyState, hierarchyState->hierarchy->nodes[i].index);

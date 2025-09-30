@@ -41,19 +41,19 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		// Concat (matrix mul) them in the correct order
 		// v' = t + R * S * v
 		//a3real4x4SetIdentity(spatialPose->transformMat.m);
-		spatialPose->transformMat.m[3][0] = 0;
+		spatialPose->transformMat.m[3][0] = 0; //Zero the Mat.m so the + t doesn't happen every cycle.
 		spatialPose->transformMat.m[3][1] = 0;
 		spatialPose->transformMat.m[3][2] = 0;
-		a3real4x4 scale, rotation, translation;
-		a3real4x4SetIdentity(scale);
+		a3real4x4 scale, rotation, translation; 
+		a3real4x4SetIdentity(scale); //Identity matrix the 4x4s
 		a3real4x4SetIdentity(rotation);
 		a3real4x4SetIdentity(translation);
 
-		if (channel)
+		if (channel) // Set scale
 		{
 			a3real4x4SetScale(scale, spatialPose->scale.x);
 		}
-		if (channel)
+		if (channel) //Clamp rotation (Couldn't figure out channel setting in hierarchy so just as long as channel exists)
 		{
 			while (spatialPose->rotate.x > 360.0f)  spatialPose->rotate.x -= 360.0f;
 			while (spatialPose->rotate.x < -360.0f) spatialPose->rotate.x += 360.0f;
@@ -70,61 +70,44 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		}
 		
 
-		//switch (order)
-		//{
-		//case(a3poseEulerOrder_xyz):
-		//{
-		//	a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
-		//	break;
-		//}
-		///*case(a3poseEulerOrder_yzx):
-		//{
-		//	a3real4Add(rotation, &spatialPose->rotate.y);
-		//	a3real4Add(rotation, &spatialPose->rotate.z);
-		//	a3real4Add(rotation, &spatialPose->rotate.x);
-		//	break;
-		//}
-		//case(a3poseEulerOrder_zxy):
-		//{
-		//	a3real4Add(rotation, &spatialPose->rotate.z);
-		//	a3real4Add(rotation, &spatialPose->rotate.x);
-		//	a3real4Add(rotation, &spatialPose->rotate.y);
-		//	break;
-		//}
-		//case(a3poseEulerOrder_yxz):
-		//{
-		//	a3real4Add(rotation, &spatialPose->rotate.y);
-		//	a3real4Add(rotation, &spatialPose->rotate.x);
-		//	a3real4Add(rotation, &spatialPose->rotate.z);
-		//	break;
-		//}
-		//case(a3poseEulerOrder_xzy):
-		//{
-		//	a3real4Add(rotation, &spatialPose->rotate.x);
-		//	a3real4Add(rotation, &spatialPose->rotate.z);
-		//	a3real4Add(rotation, &spatialPose->rotate.y);
-		//	break;
-		//}*/
-		//case(a3poseEulerOrder_zyx):
-		//{
-		//	a3real4x4SetRotateZYX(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
-		//	break;
-		//}
-		//}
-		a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
-		a3real4x4ConcatL(scale, rotation);
-		a3real4x4ConcatL(spatialPose->transformMat.m, scale);
+		switch (order)
+		{
+		case(a3poseEulerOrder_xyz): //Fill the rotation matrix based on the order
+		{
+			a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+			break;
+		}
+		case(a3poseEulerOrder_yzx):
+		{
+			a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.y, spatialPose->rotate.z, spatialPose->rotate.x);
+			break;
+		}
+		case(a3poseEulerOrder_zxy):
+		{
+			a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.z, spatialPose->rotate.x, spatialPose->rotate.y);
+			break;
+		}
+		case(a3poseEulerOrder_yxz):
+		{
+			a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.y, spatialPose->rotate.x, spatialPose->rotate.z);
+			break;
+		}
+		case(a3poseEulerOrder_xzy):
+		{
+			a3real4x4SetRotateXYZ(rotation, spatialPose->rotate.x, spatialPose->rotate.z, spatialPose->rotate.y);
+			break;
+		}
+		case(a3poseEulerOrder_zyx):
+		{
+			a3real4x4SetRotateZYX(rotation, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
+			break;
+		}
+		}
+		a3real4x4ConcatL(scale, rotation); // R * S
+		a3real4x4ConcatL(spatialPose->transformMat.m, scale); // (R * S) * v
 		
-
-		/*a3real4ProductComp(scale, rotation, scale);
-		a3real3MulComp(spatialPose->transformMat.m[3], scale);*/
-		//a3real4x4Diff(&spatialPose->transformMat.m[3], &spatialPose->transformMat.m[3], transform);
-		//a3real4x4Sum(&spatialPose->transformMat.m[3], &spatialPose->transformMat.m[3], transform);
-
-		//a3real4x4SetRotateZYX(spatialPose->transformMat.m, spatialPose->rotate.x, spatialPose->rotate.y, spatialPose->rotate.z);
-
 		// This part can stay
-		a3real3Add(spatialPose->transformMat.m[3], spatialPose->translate.v);
+		a3real3Add(spatialPose->transformMat.m[3], spatialPose->translate.v); // (R * S * V) + t
 
 		// ***DO THIS EVERYWHERE THIS FILE
 		// make sure rotation angles are within [-360, +360]
