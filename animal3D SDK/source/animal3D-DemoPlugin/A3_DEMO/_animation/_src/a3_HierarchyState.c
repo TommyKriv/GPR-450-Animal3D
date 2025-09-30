@@ -305,8 +305,6 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-2: IMPLEMENT ME
 //-----------------------------------------------------------------------------
-		// Ethan do these
-		
 		//Some variable declarations. These need to be accessed in several steps
 		a3boolean isHTR = true;
 		a3boolean isHTRS = true;
@@ -469,10 +467,6 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 			scaleFactor = (float)atof(fileLine);
 			scaleFactor *= 100.0f / 1000.0f;
 		}
-		poseGroup_out->channel[0] = a3poseChannel_rotate_xyz;
-		poseGroup_out->channel[1] = a3poseChannel_scale_xyz;
-		poseGroup_out->channel[2] = a3poseChannel_translate_xyz;
-		poseGroup_out->channel[3] = a3poseChannel_user_xyz;
 
 		// Moving on to setting up the hierarchy
 		if (fscanf(sourceFile, "%s", fileLine));
@@ -520,112 +514,23 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 				if (isHTRS)
 				{
 					// Grab transform
-					switch (eulerOrder)
-					{
-					case a3poseEulerOrder_xyz:
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_yzx:
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_zxy:
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_yxz:
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_xzy:
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_zyx:
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						break;
-					}
+					if (fscanf(sourceFile, "%s", fileLine));
+					xComp = (float)atof(fileLine);
+					if (fscanf(sourceFile, "%s", fileLine));
+					yComp = (float)atof(fileLine);
+					if (fscanf(sourceFile, "%s", fileLine));
+					zComp = (float)atof(fileLine);
 					poseGroup_out->order[i] = eulerOrder;
 					a3spatialPoseSetTranslation(&poseGroup_out->pose[i], xComp*scaleFactor, yComp*scaleFactor, zComp*scaleFactor);
 
 					// Grab rotation
-					switch (eulerOrder)
-					{
-					case a3poseEulerOrder_xyz:
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_yzx:
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_zxy:
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_yxz:
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_xzy:
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						break;
-					case a3poseEulerOrder_zyx:
-						if (fscanf(sourceFile, "%s", fileLine));
-						zComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						yComp = (float)atof(fileLine);
-						if (fscanf(sourceFile, "%s", fileLine));
-						xComp = (float)atof(fileLine);
-						break;
-					}
+			
+					if (fscanf(sourceFile, "%s", fileLine));
+					xComp = (float)atof(fileLine);
+					if (fscanf(sourceFile, "%s", fileLine));
+					yComp = (float)atof(fileLine);
+					if (fscanf(sourceFile, "%s", fileLine));
+					zComp = (float)atof(fileLine);
 					a3spatialPoseSetRotation(&poseGroup_out->pose[i], xComp, yComp, zComp);
 
 					// Get scale
@@ -633,12 +538,13 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 					scaleComp = (float)atof(fileLine);
 					a3spatialPoseSetScale(&poseGroup_out->pose[i], scaleComp, scaleComp, scaleComp);
 
-					poseGroup_out->pose[i];
+					poseGroup_out->order[i] = eulerOrder;
 				}
 				else
 				{
 					return -1;
 				}
+
 
 				poseGroup_out->hpose[0].hpose_base = &poseGroup_out->pose[0];
 				poseGroup_out->hpose[0].hpose_index = 0;
@@ -809,22 +715,23 @@ a3i32 a3hierarchyPoseGroupLoadHTR(a3_HierarchyPoseGroup* poseGroup_out, a3_Hiera
 			{
 				if (fscanf(sourceFile, "%s", fileLine)); // Extract number
 				if (fscanf(sourceFile, "%s", fileLine));
-				zComp = (float)atof(fileLine);
+				xComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
 				yComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
-				xComp = (float)atof(fileLine);
+				zComp = (float)atof(fileLine);
 				a3spatialPoseSetTranslation(&poseGroup_out->pose[i + (j * 67)], xComp*scaleFactor, yComp*scaleFactor, zComp*scaleFactor);
 				if (fscanf(sourceFile, "%s", fileLine));
-				zComp = (float)atof(fileLine);
+				xComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
 				yComp = (float)atof(fileLine);
 				if (fscanf(sourceFile, "%s", fileLine));
-				xComp = (float)atof(fileLine);
+				zComp = (float)atof(fileLine);
 				a3spatialPoseSetRotation(&poseGroup_out->pose[i + (j * 67)], xComp, yComp, zComp);
 				if (fscanf(sourceFile, "%s", fileLine));
 				scaleComp = (float)atof(fileLine);
 			}
+			
 		}
 
 		poseGroup_out->hpose[1].hpose_base = &poseGroup_out->pose[67];

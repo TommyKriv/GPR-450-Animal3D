@@ -44,9 +44,10 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		spatialPose->transformMat.m[3][0] = 0;
 		spatialPose->transformMat.m[3][1] = 0;
 		spatialPose->transformMat.m[3][2] = 0;
-		a3real4x4 scale, rotation;
+		a3real4x4 scale, rotation, translation;
 		a3real4x4SetIdentity(scale);
 		a3real4x4SetIdentity(rotation);
+		a3real4x4SetIdentity(translation);
 
 		if (channel)
 		{
@@ -67,6 +68,7 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 			while (spatialPose->rotate.z > 360.0f)  spatialPose->rotate.z -= 360.0f;
 			while (spatialPose->rotate.z < -360.0f) spatialPose->rotate.z += 360.0f;
 		}
+		
 
 		//switch (order)
 		//{
