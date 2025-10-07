@@ -266,7 +266,7 @@ static void a3kinematicsResolvePostIK(a3_HierarchyState* activeHS,
 //****TO-DO-ANIM-PROJECT-3: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 
-
+	//a3real4x4SetReal4x4();
 
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
@@ -293,7 +293,21 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 //****TO-DO-ANIM-PROJECT-3: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 
+	// FIRST STEP:
+	// tranform everything into the space of the skeleton
+	// -> look-at target
 
+	// MAIN STEP:
+	// solver: build an orthonormal basis (joint-to-object)
+	// 1. direction basis = target - joint.position
+	// 2. side basis = known up vector x direction basis
+	// 3. up basis = direction basis x side basis
+	// 4. normalize all
+
+
+	// LAST STEP:
+	// resolve every affected joint:
+	//a3kinematicsResolvePostIK
 
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
@@ -325,7 +339,31 @@ void a3kinematicsUpdateLimbIK(a3_HierarchyState const* sceneGraphState,
 //****TO-DO-ANIM-PROJECT-3: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 
+	// FIRST STEP:
+	// tranform everything into the space of the skeleton
+	//  -> wrist effector
+	//  -> pole vector constraint
 
+
+	// MAIN STEP:
+	// solve joint-to-object for end, hinge, base
+	//  -> end position solution*
+	//  -> hinge position solution* (Will be a little more difficult)
+	// 1. base joint to end effector vector (and distance)
+	// 2. base joint to pole vector constraint
+	// 3. plane normal = (base to pole) x (base to end)
+	// 4. geometric (Heron's formula) or algebraic (law of cosines)
+	//  -> solves elbow position
+	// 5. "look at" solves shoulder and elbow rotations. (Need to rebase after step 4. Look at handles that.) 
+	// Teacher says 'You will be surprised how little code this all is'
+
+
+	// LAST STEP:
+	// resolve every affected joint:
+	// -> work from root to leaf:
+	//a3kinematicsResolvePostIK
+	//a3kinematicsResolvePostIK
+	//a3kinematicsResolvePostIK
 
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
