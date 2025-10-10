@@ -296,6 +296,10 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	// FIRST STEP:
 	// tranform everything into the space of the skeleton
 	// -> look-at target
+	m_hierarchyObj;
+	m_affected;
+
+	a3boolean debugBoolean = true;
 
 	// MAIN STEP:
 	// solver: build an orthonormal basis (joint-to-object)
