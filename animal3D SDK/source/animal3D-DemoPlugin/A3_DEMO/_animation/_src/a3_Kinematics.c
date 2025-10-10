@@ -296,10 +296,13 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	// FIRST STEP:
 	// tranform everything into the space of the skeleton
 	// -> look-at target
-	m_hierarchyObj;
-	m_affected;
 
-	a3boolean debugBoolean = true;
+	//Target Position.
+	a3real3 targetPos;// = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.xyz; // Position relative to parent which is the skeleton
+	targetPos[0] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.x;
+	targetPos[1] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.y;
+	targetPos[2] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.z;
+	
 
 	// MAIN STEP:
 	// solver: build an orthonormal basis (joint-to-object)
@@ -307,11 +310,55 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	// 2. side basis = known up vector x direction basis
 	// 3. up basis = direction basis x side basis
 	// 4. normalize all
+	//a3real3 neckPos = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.xyz; // Position of neck relative to root of skeleton
+	a3real3 neckPos;
+	neckPos[0] = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.x;
+	neckPos[1] = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.y;
+	neckPos[2] = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.z;
+	
+	a3real3 directionBasis, knownUp, sideBasis, upBasis;
 
+	a3real3Diff(directionBasis, targetPos, neckPos);
+	// We will fix this later
+	//directionBasis.x = targetPos.x - neckPos.x;
+	//directionBasis.y = targetPos.y - neckPos.y;
+	//directionBasis.z = targetPos.z - neckPos.z;
+
+	/*switch (basis_affected)
+	{
+	case basis_xp:
+		a3real3Set(knownUp, 1, 0, 0);
+		break;
+	case basis_yp:
+		a3real3Set(knownUp, 0, 1, 0);
+		break;
+	case basis_zp:
+		a3real3Set(knownUp, 0, 0, 1);
+		break;
+	case basis_xn:
+		a3real3Set(knownUp, -1, 0, 0);
+		break;
+	case basis_yn:
+		a3real3Set(knownUp, 0, -1, 0);
+		break;
+	case basis_zn:
+		a3real3Set(knownUp, 0, 0, -1);
+		break;
+	}*/
+	a3real3Set(knownUp, 0, 1, 0);
+	a3real3Cross(sideBasis, knownUp, directionBasis);
+	a3real3Cross(upBasis, directionBasis, sideBasis);
+	a3real3Normalize(upBasis);
+	a3real3Normalize(sideBasis);
+	a3real3Normalize(directionBasis);
+	a3real4x4 orthoBasis, orthoBasisInv;
+	a3real4x4MakeLookAt(orthoBasis, orthoBasisInv, neckPos, targetPos, upBasis);
 
 	// LAST STEP:
 	// resolve every affected joint:
 	//a3kinematicsResolvePostIK
+
+	a3boolean debugBoolean = true;
 
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
