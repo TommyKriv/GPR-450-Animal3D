@@ -23,6 +23,7 @@
 */
 
 #include "../a3_SpatialPose.h"
+//#include <math.h>
 
 
 //-----------------------------------------------------------------------------
@@ -141,10 +142,10 @@ a3i32 a3spatialPoseRestore(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		spatialPose->scale.z = a3real3Length(spatialPose->transformMat.v2.v);
 
 		//Extract rotation by dividing collumns by respective scale
-		a3mat3 R;
-		a3real4x4QuotientS(R.v0.v, spatialPose->transformMat.v0.v, spatialPose->scale.x); 
-		a3real4x4QuotientS(R.v1.v, spatialPose->transformMat.v1.v, spatialPose->scale.y);
-		a3real4x4QuotientS(R.v2.v, spatialPose->transformMat.v2.v, spatialPose->scale.z);
+		a3mat4 R;
+		a3real4x4QuotientS(&R.v0.v, &spatialPose->transformMat.v0.v, spatialPose->scale.x); 
+		a3real4x4QuotientS(&R.v1.v, &spatialPose->transformMat.v1.v, spatialPose->scale.y);
+		a3real4x4QuotientS(&R.v2.v, &spatialPose->transformMat.v2.v, spatialPose->scale.z);
 
 		//Extract angles
 		spatialPose->rotate.x = a3real_rad2deg * atan2f(R.m12, R.m22);
