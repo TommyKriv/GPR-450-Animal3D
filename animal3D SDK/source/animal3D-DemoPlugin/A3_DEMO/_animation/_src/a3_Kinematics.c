@@ -266,7 +266,27 @@ static void a3kinematicsResolvePostIK(a3_HierarchyState* activeHS,
 //****TO-DO-ANIM-PROJECT-3: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 
-	//a3real4x4SetReal4x4();
+	a3real4x4SetReal4x4(activeHS->objectSpace->hpose_base[nodeIndex].transformMat.m, j2obj);
+	a3real4x4 newInverseMatrix;
+	a3real4x4SetReal4x4(newInverseMatrix, j2obj);
+	a3real4x4Invert(newInverseMatrix);
+	a3real4x4SetReal4x4(activeHS->objectSpaceInv->hpose_base[nodeIndex].transformMat.m, j2obj);
+
+	a3i32 parentIndex = activeHS->hierarchy->nodes[nodeIndex].parentIndex;
+
+	a3real4x4 parentInverseMatrix;
+	a3real4x4SetReal4x4(parentInverseMatrix, activeHS->objectSpace->hpose_base[parentIndex].transformMat.m);
+	a3real4x4Invert(parentInverseMatrix);
+
+	a3real4x4 newLocalMatrix;
+	a3real4x4Product(newLocalMatrix, parentInverseMatrix, j2obj);
+	a3real4x4SetReal4x4(activeHS->localSpace->hpose_base[nodeIndex].transformMat.m, newLocalMatrix);
+	a3hierarchyPoseRestore(activeHS->localSpace, activeHS->hierarchy->numNodes, poseGroup->channel, poseGroup->order);
+	a3spatialPoseDeconcat(&activeHS->localSpace->hpose_base[nodeIndex], &activeHS->localSpace->hpose_base[nodeIndex], &baseHS->localSpace->hpose_base[nodeIndex]);
+
+	/*a3real4x4Product(newLocalMatrix, activeHS->localSpace->hpose_base[parentIndex].transformMat.m, newInverseMatrix);
+	a3real4x4SetReal4x4(activeHS->localSpace->hpose_base[nodeIndex].transformMat.m, newLocalMatrix);*/
+	
 
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
@@ -357,6 +377,7 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	// LAST STEP:
 	// resolve every affected joint:
 	//a3kinematicsResolvePostIK
+	a3kinematicsResolvePostIK(activeHS, baseHS, poseGroup, hierarchyObjIndex_affected, orthoBasis);
 
 	a3boolean debugBoolean = true;
 
