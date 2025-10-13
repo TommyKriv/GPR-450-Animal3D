@@ -152,7 +152,6 @@ a3i32 a3spatialPoseRestore(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		spatialPose->rotate.x = a3real_rad2deg * atan2f(R.m12, R.m22);
 		spatialPose->rotate.y = a3real_rad2deg * asinf(-R.m02);
 		spatialPose->rotate.z = a3real_rad2deg * atan2f(R.m01, R.m00);
-
 		return 1;
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
