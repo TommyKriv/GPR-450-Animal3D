@@ -23,7 +23,7 @@
 */
 
 #include "../a3_SpatialPose.h"
-#include <math.h>
+//#include <math.h>
 
 
 //-----------------------------------------------------------------------------
@@ -103,8 +103,8 @@ a3i32 a3spatialPoseConvert(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 }
 
 // restore single node pose from matrix
-//extern float asinf(float_y_r);
-//extern float atan2f(float y, float x);
+extern float asinf(float_y_r);
+extern float atan2f(float y, float x);
 a3i32 a3spatialPoseRestore(a3_SpatialPose* spatialPose, const a3_SpatialPoseChannel channel, const a3_SpatialPoseEulerOrder order)
 {
 	if (spatialPose)
@@ -141,11 +141,11 @@ a3i32 a3spatialPoseRestore(a3_SpatialPose* spatialPose, const a3_SpatialPoseChan
 		spatialPose->scale.y = a3real3Length(spatialPose->transformMat.v1.v);
 		spatialPose->scale.z = a3real3Length(spatialPose->transformMat.v2.v);
 
-		//Extract rotation by dividing collumns by respective scale
+		//Extract rotation by dividing columns by respective scale
 		a3mat4 R = a3mat4_identity;
-		a3real4x4QuotientS(&R.v0.v, &spatialPose->transformMat.v0.v, spatialPose->scale.x); 
-		a3real4x4QuotientS(&R.v1.v, &spatialPose->transformMat.v1.v, spatialPose->scale.y);
-		a3real4x4QuotientS(&R.v2.v, &spatialPose->transformMat.v2.v, spatialPose->scale.z);
+		a3real4QuotientS(R.v0.v, spatialPose->transformMat.v0.v, spatialPose->scale.x); 
+		a3real4QuotientS(R.v1.v, spatialPose->transformMat.v1.v, spatialPose->scale.y);
+		a3real4QuotientS(R.v2.v, spatialPose->transformMat.v2.v, spatialPose->scale.z);
 
 		//Extract angles
 		// Update this section to work with a 4x4 matrix
@@ -244,7 +244,7 @@ a3i32 a3spatialPoseDeconcat(a3_SpatialPose* spatialPose_out, const a3_SpatialPos
 }
 
 // lerp
-//extern float powf(float b, float e);//#include <math.h>
+extern float powf(float b, float e);//#include <math.h>
 a3i32 a3spatialPoseLerp(a3_SpatialPose* spatialPose_out, const a3_SpatialPose* spatialPose_0, const a3_SpatialPose* spatialPose_1, const a3real u)
 {
 	if (spatialPose_out && spatialPose_0 && spatialPose_1)

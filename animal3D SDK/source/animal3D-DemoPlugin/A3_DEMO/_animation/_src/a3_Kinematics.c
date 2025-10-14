@@ -259,18 +259,22 @@ static void a3kinematicsResolvePostIK(a3_HierarchyState* activeHS,
 	// post-IK resolution for single affected joint
 	//	-> reassign resolved transform to object-space
 	//	-> compute object-space inverse matrix
-	//	-> compute local-space matrix
-	//	-> restore local-space matrix to pose
+	//	-> compute local-space matrix  // IK function
+	//	-> restore local-space matrix to pose // IK function
 	//	-> deconcatenate base pose
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-3: IMPLEMENT ME
 //-----------------------------------------------------------------------------
 
+	// THIS SHOULD BE 5 FUNCTION CALLS
+
 	a3real4x4SetReal4x4(activeHS->objectSpace->hpose_base[nodeIndex].transformMat.m, j2obj);
+	
+	/*
 	a3real4x4 newInverseMatrix;
 	a3real4x4SetReal4x4(newInverseMatrix, j2obj);
 	a3real4x4Invert(newInverseMatrix);
-	a3real4x4SetReal4x4(activeHS->objectSpaceInv->hpose_base[nodeIndex].transformMat.m, j2obj);
+	a3real4x4SetReal4x4(activeHS->objectSpaceInv->hpose_base[nodeIndex].transformMat.m, newInverseMatrix);
 
 	a3i32 parentIndex = activeHS->hierarchy->nodes[nodeIndex].parentIndex;
 
@@ -281,6 +285,8 @@ static void a3kinematicsResolvePostIK(a3_HierarchyState* activeHS,
 	a3real4x4 newLocalMatrix;
 	a3real4x4Product(newLocalMatrix, parentInverseMatrix, j2obj);
 	a3real4x4SetReal4x4(activeHS->localSpace->hpose_base[nodeIndex].transformMat.m, newLocalMatrix);
+	*/
+
 	a3hierarchyPoseRestore(activeHS->localSpace, activeHS->hierarchy->numNodes, poseGroup->channel, poseGroup->order);
 	a3spatialPoseDeconcat(&activeHS->localSpace->hpose_base[nodeIndex], &activeHS->localSpace->hpose_base[nodeIndex], &baseHS->localSpace->hpose_base[nodeIndex]);
 
@@ -372,7 +378,7 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	a3real3Normalize(sideBasis);
 	a3real3Normalize(directionBasis);
 	a3real4x4 orthoBasis, orthoBasisInv;
-	a3real4x4MakeLookAt(orthoBasis, orthoBasisInv, neckPos, targetPos, upBasis);
+	a3real4x4MakeLookAt(orthoBasis, orthoBasisInv, neckPos, targetPos, upBasis); // This may be wrong and may result in errors
 
 	// LAST STEP:
 	// resolve every affected joint:
