@@ -267,22 +267,15 @@ static void a3kinematicsResolvePostIK(a3_HierarchyState* activeHS,
 //-----------------------------------------------------------------------------
 
 	// THIS SHOULD BE 5 FUNCTION CALLS
-	
-	a3real4x4SetReal4x4(activeHS->objectSpace->hpose_base[nodeIndex].transformMat.m, j2obj);
-	a3real4x4TransformInverse(activeHS->objectSpaceInv->hpose_base[nodeIndex].transformMat.m, activeHS->objectSpace->hpose_base[nodeIndex].transformMat.m);
-	a3ui32 parentIndex = activeHS->hierarchy->nodes[nodeIndex].parentIndex;
-	if (parentIndex == -1)
-	{
-		a3kinematicsSolveInverseRoot(activeHS, nodeIndex);
-	}
-	else
-	{
-		a3kinematicsSolveInverseSingle(activeHS, nodeIndex, parentIndex);
-	}
-	a3spatialPoseRestore(&activeHS->localSpace->hpose_base[nodeIndex], poseGroup->channel[nodeIndex], poseGroup->order[nodeIndex]);
-	a3spatialPoseDeconcat(&activeHS->animPose->hpose_base[nodeIndex], &activeHS->localSpace->hpose_base[nodeIndex], &baseHS->localSpace->hpose_base[nodeIndex]);
-	
 
+	a3real4x4SetReal4x4(activeHS->objectSpace->hpose_base[nodeIndex].transformMat.m, j2obj);
+	a3real4x4GetInverse(activeHS->objectSpaceInv->hpose_base[nodeIndex].transformMat.m, j2obj);
+
+	a3ui32 parentIndex = activeHS->hierarchy->nodes[nodeIndex].parentIndex;
+	a3kinematicsSolveInverseSingle(activeHS, nodeIndex, parentIndex);
+
+	a3spatialPoseRestore(activeHS->localSpace->hpose_base + nodeIndex, poseGroup->channel[nodeIndex], poseGroup->order[nodeIndex]);
+	a3spatialPoseDeconcat(activeHS->animPose->hpose_base + nodeIndex, activeHS->localSpace->hpose_base + nodeIndex, baseHS->localSpace->hpose_base + nodeIndex); //swap order for more accurate head
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
 //-----------------------------------------------------------------------------
@@ -314,9 +307,8 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 
 	//Target Position.
 	a3real3 targetPos;// = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.xyz; // Position relative to parent which is the skeleton
-	targetPos[0] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.x;
-	targetPos[1] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.y;
-	targetPos[2] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.z;
+	a3real3SetReal4(targetPos, sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.v);
+	a3real4x4TransformMul(sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.m, &activeHS->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.v);
 	
 
 	// MAIN STEP:
@@ -326,24 +318,16 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	// 3. up basis = direction basis x side basis
 	// 4. normalize all
 	//a3real3 neckPos = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.xyz; // Position of neck relative to root of skeleton
-	a3real3 neckPos;
-	neckPos[0] = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.x;
-	neckPos[1] = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.y;
-	neckPos[2] = activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.z;
-	
-	/////////////////////////
-	///// a3basisToMat4 /////
-	/////////////////////////
-	// Check out this function, it's pretty nifty (possibly)
+	a3real4 neckPos;
 
-	a3real3 directionBasis, knownUp, sideBasis, upBasis;
+	a3real3SetReal4(neckPos, activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.v3.v);
+
+	a3real4 directionBasis;
+	a3real4 knownUp, sideBasis, upBasis;
 	a3_BasisAxis upAxis, forwardAxis;
 
 	a3real3Diff(directionBasis, targetPos, neckPos);
-	// We will fix this later
-	//directionBasis.x = targetPos.x - neckPos.x;
-	//directionBasis.y = targetPos.y - neckPos.y;
-	//directionBasis.z = targetPos.z - neckPos.z;
+	a3real3Normalize(directionBasis);
 	a3basisExtract(&forwardAxis, &upAxis, basis_affected);
 
 	switch (upAxis)
@@ -371,7 +355,6 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	a3real3Cross(upBasis, directionBasis, sideBasis);
 	a3real3Normalize(upBasis);
 	a3real3Normalize(sideBasis);
-	a3real3Normalize(directionBasis);
 
 	a3real4x4 orthoBasis;
 	a3real4x4SetIdentity(orthoBasis);
@@ -381,10 +364,12 @@ void a3kinematicsUpdateLookAtIK(a3_HierarchyState const* sceneGraphState,
 	a3real4Set(sideMinor, sideBasis[0], sideBasis[1], sideBasis[2], 0);
 	a3real4Set(directionMinor, directionBasis[0], directionBasis[1], directionBasis[2], 0);
 	a3real4Set(neckMinor, 0, 0, 0, 1);
-	//a3real4x4SetMinors(orthoBasis, upMinor, sideMinor, directionMinor, neckMinor);
 	a3real4x4SetMinors(orthoBasis, sideMinor, upMinor, directionMinor, neckMinor);
-	a3real4x4Product(orthoBasis, activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.m, orthoBasis);
-	//a3real4x4MakeLookAt(orthoBasis, orthoBasisInv, neckPos, targetPos, upBasis); // This may be wrong and may result in errors
+	orthoBasis[3][0] = neckPos[0];
+	orthoBasis[3][1] = neckPos[1];
+	orthoBasis[3][2] = neckPos[2];
+	//a3real4x4Product(orthoBasis, activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected].transformMat.m, orthoBasis);
+
 
 	// LAST STEP:
 	// resolve every affected joint:
@@ -422,40 +407,48 @@ void a3kinematicsUpdateLimbIK(a3_HierarchyState const* sceneGraphState,
 //-----------------------------------------------------------------------------
 //****TO-DO-ANIM-PROJECT-3: IMPLEMENT ME
 //-----------------------------------------------------------------------------
-	/*
+	
 	// FIRST STEP:
 	// tranform everything into the space of the skeleton
 	//  -> wrist effector
 	//  -> pole vector constraint
-	a3real3 wristPos, polePos, basePos, baseShoulderPos, baseElbowPos, baseWristPos;// = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.xyz; // Position relative to parent which is the skeleton
-	wristPos[0] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector_end].transformMat.v3.x;
-	wristPos[1] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector_end].transformMat.v3.y;
-	wristPos[2] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector_end].transformMat.v3.z;
+	a3real4 wristConPos, polePos, baseShoulderPos, baseElbowPos, baseWristPos;// = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_effector].transformMat.v3.xyz; // Position relative to parent which is the skeleton
+	a3real3SetReal4(wristConPos, activeHS->localSpace->hpose_base[sceneGraphIndex_effector_end].transformMat.v3.v);
+	a3real3SetReal4(polePos, activeHS->localSpace->hpose_base[sceneGraphIndex_constraint].transformMat.v3.v);
 
-	polePos[0] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_constraint].transformMat.v3.x;
-	polePos[1] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_constraint].transformMat.v3.y;
-	polePos[2] = sceneGraphState->localSpace->hpose_base[sceneGraphIndex_constraint].transformMat.v3.z;
-
-	basePos[0] = activeHS->localSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.x;
-	basePos[1] = activeHS->localSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.y;
-	basePos[2] = activeHS->localSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.z;
 	a3real forearmLength, upperArmLength, shoulderWristLength;
 
-	baseShoulderPos[0] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.x;
-	baseShoulderPos[1] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.y;
-	baseShoulderPos[2] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.z;
+	a3real3SetReal4(baseShoulderPos, activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.v3.v);
+	a3real3SetReal4(baseElbowPos, activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected_hinge].transformMat.v3.v);
+	a3real3SetReal4(baseWristPos, activeHS->objectSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.v);
 
-	baseElbowPos[0] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_hinge].transformMat.v3.x;
-	baseElbowPos[1] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_hinge].transformMat.v3.y;
-	baseElbowPos[2] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_hinge].transformMat.v3.z;
 
-	baseWristPos[0] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.x;
-	baseWristPos[1] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.y;
-	baseWristPos[2] = baseHS->objectSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.z;
-
-	forearmLength = a3real3Distance(baseWristPos, baseElbowPos);
 	upperArmLength = a3real3Distance(baseElbowPos, baseShoulderPos);
-	shoulderWristLength = a3real3Distance(wristPos, basePos);
+	forearmLength = a3real3Distance(baseWristPos, baseElbowPos);
+
+	a3real3 poleDir;
+	a3real3Diff(poleDir, baseElbowPos, baseShoulderPos);
+	a3real3Normalize(poleDir);
+	a3real4 elbowPos;
+	a3real4ProductComp(elbowPos, poleDir, &upperArmLength);
+	a3real4Sum(elbowPos, elbowPos, baseShoulderPos);
+	a3real4x4 elbowWholePos;
+	a3real4x4SetIdentity(elbowWholePos);
+	a3real4x4SetRotateXYZ(elbowWholePos, poleDir[0], poleDir[1], poleDir[2]);
+	elbowWholePos[3][0] = baseElbowPos[0];
+	elbowWholePos[3][1] = baseElbowPos[1];
+	elbowWholePos[3][2] = baseElbowPos[2];
+
+	a3real3 wristDir;
+	a3real3Diff(wristDir, wristConPos, baseElbowPos);
+	a3real3Normalize(wristDir);
+	a3real4x4 wristWholePos;
+	a3real4x4SetIdentity(wristWholePos);
+	a3real4x4SetRotateXYZ(wristWholePos, wristDir[0], wristDir[1], wristDir[2]);
+	elbowWholePos[3][0] = wristConPos[0];
+	elbowWholePos[3][1] = wristConPos[1];
+	elbowWholePos[3][2] = wristConPos[2];
+
 
 	// MAIN STEP:
 	// solve joint-to-object for end, hinge, base
@@ -469,14 +462,13 @@ void a3kinematicsUpdateLimbIK(a3_HierarchyState const* sceneGraphState,
 	// 5. "look at" solves shoulder and elbow rotations. (Need to rebase after step 4. Look at handles that.) 
 	// Teacher says 'You will be surprised how little code this all is'
 
-	a3kinematicsSolveInverseSingle(activeHS, hierarchyObjIndex_affected_end, activeHS->hierarchy->nodes[hierarchyObjIndex_affected_end].parentIndex);
-	a3kinematicsSolveInverseSingle(activeHS, hierarchyObjIndex_affected_hinge, activeHS->hierarchy->nodes[hierarchyObjIndex_affected_hinge].parentIndex);
-	a3kinematicsSolveInverseSingle(activeHS, hierarchyObjIndex_affected_base, activeHS->hierarchy->nodes[hierarchyObjIndex_affected_base].parentIndex);
-
 	a3real3 baseToEnd;
-	a3real3Diff(baseToEnd, basePos, wristPos);
+	a3real3Diff(baseToEnd, baseShoulderPos, wristConPos);
+	shoulderWristLength = a3real3Distance(baseWristPos, baseElbowPos);
 	a3real3 baseToPole;
-	a3real3Diff(baseToPole, basePos, polePos);
+	a3real3Diff(baseToPole, baseShoulderPos, polePos);
+	a3real3 baseToShoulder;
+	a3real3Diff(baseToShoulder, baseShoulderPos, polePos);
 	a3real3 planeNormal;
 	a3real3Cross(planeNormal, baseToPole, baseToEnd);
 	a3real3Normalize(planeNormal);
@@ -485,24 +477,29 @@ void a3kinematicsUpdateLimbIK(a3_HierarchyState const* sceneGraphState,
 	a = forearmLength;
 	b = upperArmLength;
 	c = shoulderWristLength;
-	angleTheta = a3real_rad2deg * a3acosd(((a*a)-(b*b)-(c*c))/(-2*b*c));
+	a3real area, s;
+	s = 0.5f * (a + b + c);
+	area = a3sqrtf((s * (s - a) * (s - b) * (s - c)));
+	angleTheta = a3real_rad2deg * a3cosd(((a*a)-(b*b)-(c*c))/(-2*b*c));
 
+	//Calculate Vector from Shoulder to Elbow
+	a3real3 elbowDirection;
+	a3real3ProductS(elbowDirection, planeNormal, upperArmLength * a3cosd(angleTheta));
+	a3real3Sum(baseElbowPos, baseShoulderPos, elbowDirection);
 
-	//a3kinematicsUpdateLookAtIK(sceneGraphState, activeHS, baseHS, poseGroup, sceneGraphIndex_hierarchyObj, hierarchyObjIndex_affected_hinge, hierarchyObjIndex_affected_base, basis_hierarchyObj, basis_affected_base);
+	a3kinematicsUpdateLookAtIK(sceneGraphState, activeHS, baseHS, poseGroup, sceneGraphIndex_hierarchyObj, sceneGraphIndex_constraint, hierarchyObjIndex_affected_hinge, basis_hierarchyObj, basis_affected_hinge);
+	//a3kinematicsUpdateLookAtIK(sceneGraphState, activeHS, baseHS, poseGroup, sceneGraphIndex_hierarchyObj, sceneGraphIndex_effector_end, hierarchyObjIndex_affected_end, basis_hierarchyObj, basis_affected_end);
+
 
 	// LAST STEP:
 	// resolve every affected joint:
 	// -> work from root to leaf:
-	activeHS->localSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.x = 0;
-	activeHS->localSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.y = 0;
-	activeHS->localSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.v3.z = 0;
 
-	a3kinematicsResolvePostIK(activeHS, baseHS, poseGroup, hierarchyObjIndex_affected_base, &sceneGraphState->localSpace->hpose_base[hierarchyObjIndex_affected_base].transformMat.m[3]);
-	a3kinematicsResolvePostIK(activeHS, baseHS, poseGroup, hierarchyObjIndex_affected_hinge, &sceneGraphState->localSpace->hpose_base[hierarchyObjIndex_affected_hinge].transformMat.m[3]);
-	a3kinematicsResolvePostIK(activeHS, baseHS, poseGroup, hierarchyObjIndex_affected_end, &sceneGraphState->localSpace->hpose_base[hierarchyObjIndex_affected_end].transformMat.m[3]);
+	a3kinematicsResolvePostIK(activeHS, baseHS, poseGroup, hierarchyObjIndex_affected_base, elbowWholePos);
+	a3kinematicsResolvePostIK(activeHS, baseHS, poseGroup, hierarchyObjIndex_affected_hinge, wristWholePos);
 
 
-	*/
+	
 //-----------------------------------------------------------------------------
 //****END-TO-DO-PROJECT-3
 //-----------------------------------------------------------------------------
